@@ -24,15 +24,8 @@ export default class Chip {
     /** List of connections within this chip */
     connections = []
 
-    /** List of input parameters */
-    inputs = []
-    inputX = 0
-    inputY = 0
-
-    /** Output parameters */
-    outputs = []
-    outputX = 0
-    outputY = 0
+    /** List of slots on this chip, connectable by other chips when using this chip */
+    slots = []
 
     /** Constructor */
     constructor() {
@@ -56,16 +49,44 @@ export default class Chip {
 
             // Position in graph
             x: 0,
-            y: 0,
-
-            // Overflow inputs and outputs, for chips that allow variable arguments
-            overflowInputs: [],
-            overflowOutputs: []
+            y: 0
 
         }, fields)
 
         // Add it
         this.components.push(obj)
+
+    }
+
+    /** Connect one slot to another */
+    connect(sourceComponent, sourceComponentSlot, destinationComponent, destinationComponentSlot) {
+
+        // Safety check
+        if (sourceComponentSlot.uuid == destinationComponentSlot.uuid)
+            throw new Error("Can't connect to self.")
+
+        // Swap around if the order doesn't make sense
+        if (sourceComponentSlot.input) {
+            let tmpComponent = sourceComponent
+            let tmpComponentSlot = sourceComponentSlot
+            sourceComponent = destinationComponent
+            sourceComponentSlot = destinationComponentSlot
+            destinationComponent = tmpComponent
+            destinationComponentSlot = tmpComponentSlot
+        }
+
+        // Remove any existing connection from the source/destination slots (only one allowed)
+        this.connections = this.connections.filter(c => c.sourceComponentSlot != sourceComponentSlot.uuid)
+        this.connections = this.connections.filter(c => c.destinationComponentSlot != destinationComponentSlot.uuid)
+
+        // Add it
+        this.connections.push({
+            uuid: uuidv4(),
+            sourceComponent: sourceComponent.uuid,
+            sourceComponentSlot: sourceComponentSlot.uuid,
+            destinationComponent: destinationComponent.uuid,
+            destinationComponentSlot: destinationComponentSlot.uuid
+        })
 
     }
 
