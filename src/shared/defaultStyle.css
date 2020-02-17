@@ -1,0 +1,14 @@
+/** Fix default font */
+* {
+    font-family: inherit;
+}
+
+html, body {
+    font-family: "Helvetica Neue", Helvetica, Arial;
+}
+
+/** Prevent text selection */
+*:not(input) {
+    cursor: default;
+    user-select: none;
+}
